@@ -3,9 +3,10 @@ include INSTALL
 include LICENSE
 include MANIFEST.in
 include README
+include README.rst
 include THANKS
 include TODO
 include Changelog
-recursive-include docs *
+recursive-include doc *
 recursive-include src/flatty *.py
-recursive-include tests *
+
