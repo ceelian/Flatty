@@ -21,6 +21,7 @@ sys.path.insert(0, "../../")
 sys.path.insert(0, "../../src")
 import flatty
 
+
 # -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions

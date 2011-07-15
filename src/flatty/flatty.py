@@ -1,10 +1,16 @@
 """
+This module provides the base layer for all generic flattening schemas.
+With this classes - if not yet exists as a flatty module - 
+you can easily write a module to support flatty schemas with your favorite
+marshaller/unmarshaller. As an example look at the other modules eg. flatty.couchdb 
+
 =======
 Classes
 =======
 """
 import inspect
 import datetime
+import types
 
 
 class BaseFlattyType(object):
@@ -131,7 +137,7 @@ class Schema(object):
 		...	 a_thing = None  
 	
 	"""
-	def __init__(self, *args, **kwargs):
+	def __init__(self, **kwargs):
 		#to comfortably set attributes via kwargs in the __init__
 		for name, value in kwargs.items():
 			if not hasattr(self, name):
@@ -155,7 +161,7 @@ class Schema(object):
 		return unflatit(cls, flat_dict)		
 			
 def _check_type(val, type):
-	if type == None or val == None:
+	if type == None or val == None or type == types.NoneType:
 		return
 	if inspect.isclass(type) == False:
 		type = type.__class__
@@ -196,9 +202,13 @@ class DateConverter(Converter):
 	
 	@classmethod
 	def to_flat(cls, obj):
+		if obj == None:
+			return None
 		return obj.isoformat()
 	@classmethod
 	def to_obj(cls, val):
+		if val == None:
+			return None
 		return datetime.datetime.strptime(str(val), "%Y-%m-%d").date()
 			
 class DateTimeConverter(Converter):
@@ -209,9 +219,13 @@ class DateTimeConverter(Converter):
 	
 	@classmethod
 	def to_flat(cls, obj):
+		if obj == None:
+			return None
 		return obj.isoformat()
 	@classmethod
 	def to_obj(cls, val):
+		if val == None:
+			return None
 		return datetime.datetime.strptime(str(val), "%Y-%m-%dT%H:%M:%S.%f")
 
 class TimeConverter(Converter):
@@ -222,9 +236,13 @@ class TimeConverter(Converter):
 	
 	@classmethod
 	def to_flat(cls, obj):
+		if obj == None:
+			return None
 		return obj.strftime("%H:%M:%S.%f")
 	@classmethod
 	def to_obj(cls, val):
+		if val == None:
+			return None
 		return datetime.datetime.strptime(str(val), "%H:%M:%S.%f").time()
 
 class ConvertManager(object):
@@ -318,21 +336,28 @@ def flatit(obj):
 			elif inspect.isclass(getattr(obj.__class__, attr_name)) and \
 				issubclass(getattr(obj.__class__, attr_name), BaseFlattyType):
 				cls_attr_val = getattr(obj.__class__,attr_name)
-				deco_attr_val = cls_attr_val(attr_value)
-				_check_type(deco_attr_val, attr_type)
-				flat_dict[attr_name] = deco_attr_val._to_flat()	
+				#if we don't have a instance yet set it None 
+				if cls_attr_val == attr_value:
+					flat_dict[attr_name] = None
+				else:
+					deco_attr_val = cls_attr_val(attr_value)
+					_check_type(deco_attr_val, attr_type)
+					flat_dict[attr_name] = deco_attr_val._to_flat()	
 			
 			# if it is a schema
 			elif isinstance(attr_value, Schema):
 				_check_type(attr_value, attr_type)
 				flat_dict[attr_name] = flatit(attr_value)
 			
-			elif isinstance(attr_value, type):
+			elif inspect.isclass(attr_value):
 				flat_dict[attr_name] = None
 			
 			#if it is a primitive attribute
 			else:
 				_check_type(attr_value, attr_type)
+				#get the type of default instances in schema definitions
+				if inspect.isclass(attr_type) == False:
+					attr_type = type(attr_type)
 				attr_value = ConvertManager.to_flat(attr_type, attr_value)
 				flat_dict[attr_name] = attr_value
 			
@@ -358,6 +383,9 @@ def unflatit(cls, flat_dict):
 			if inspect.isclass(attr_value) and \
 				issubclass(attr_value, BaseFlattyType):
 				#convert flatty type to object
+				if flat_dict[attr_name] == None:
+					setattr(cls_obj,attr_name, None)
+				else:
 					deco_obj = attr_value._to_obj(flat_dict[attr_name])
 					setattr(cls_obj,attr_name,deco_obj)
 			elif inspect.isclass(attr_value) and issubclass(attr_value, Schema):
@@ -369,6 +397,9 @@ def unflatit(cls, flat_dict):
 				flat_val = None
 				if attr_name in flat_dict:
 					flat_val = flat_dict[attr_name]
+					#get the type of default instances in schema definitions
+					if inspect.isclass(attr_value) == False:
+						attr_value = type(attr_value)
 					conv_attr_value = ConvertManager.to_obj(attr_value, flat_val)
 					_check_type(conv_attr_value, attr_value)
 				

@@ -130,14 +130,14 @@ Installation
 
 Using ``easy_install`` to install ``Flatty``::
 
-  $ easy_install Flatty
+	$ easy_install Flatty
 
 
 If you have downloaded a source tarball you can install it
 by doing the following::
 
     $ python setup.py build
-    # python setup.py install # as root
+    $ python setup.py install
 
 
 Supported by

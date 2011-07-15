@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to flatty's documentation!
-===============================
+==================================
 
 Contents:
 
@@ -13,6 +13,8 @@ Contents:
    
    introduction
    flatty
+   couchdb
+   develop
 
 
 Indices and tables
