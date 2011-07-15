@@ -1,0 +1,21 @@
+#################################################################
+Flatty - marshaller/unmarshaller for light-schema python objects
+#################################################################
+
+
+Please look at the Documentation on http://packages.python.org/flatty/
+
+There you find:
+- Installation Instructions
+- Tutorials
+- Complete Reference
+- Links to further Ressources
+
+
+INSTALL FLATTY
+-----------
+
+# easy_install flatty
+
+
+

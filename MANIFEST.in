@@ -1,0 +1,11 @@
+include AUTHORS
+include INSTALL
+include LICENSE
+include MANIFEST.in
+include README
+include THANKS
+include TODO
+include Changelog
+recursive-include docs *
+recursive-include src/flatty *.py
+recursive-include tests *
