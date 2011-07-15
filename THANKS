@@ -1,2 +1,5 @@
-Thanks to Ask Solem <askh@opera.com> for the carrot library
+Thanks to the python-couchdb team for writing a python couchdb driver and
+inspired the development of Flatty with their couchdb mapper which has a 
+different approach (http://code.google.com/p/couchdb-python/)
+
 Thanks to Wingware <http://wingware.com> for supportung us with their IDE

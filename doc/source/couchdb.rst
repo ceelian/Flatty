@@ -1,6 +1,6 @@
-=====================================
-flatty.couch
-=====================================
+**********************************
+flatty.couch - the couchdb adapter
+**********************************
 
 This module helps you to build schemas for couchdb (it uses the couchdb-python
 module for storing the flattened dicts as couchdb documents)

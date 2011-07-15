@@ -14,11 +14,39 @@ the data (no meta-data is stored).
 **Key Features:**
 
 	- easy to use
+	- couchdb adapter to use flatty schemas with couchdb
 	- only plain data is marshaled, no class meta-data
 	- extensible, add custom converters for your own needs and types
 	- can be easily extended to support unique features of a marshal framework 
 	- light-weight (flatty has currently less than 200 lines of code)
 	- OpenSource BSD-licensed
+	
+
+**Full documentation can be found on** `PyPi Flatty Documentation`_
+
+.. _`PyPi Flatty Documentation`: http://packages.python.org/flatty/index.html
+
+
+Idea behind Flatty
+------------------
+
+The goal of Flatty is to provide a class-to-dict marshaller which stays in the
+background on top of other low-level marshallers. They might only support python 
+dicts and some base types. 
+
+With Flatty you can build a complete class schema and
+marshall/unmarshall (flatten/unflatten) high-level class objects to the low-level 
+marshaller which provides the persistence layer. 
+A good example where Flatty already provides an 
+adapter is couchdb. We tried to keep the schema definition as much as possible 
+"standard python" and gather the needed information through inspection to keep 
+things easy. 
+
+Flatty reduces everything to a simple dict, without storing metainformation in 
+the marshalled data. The marshalling process Flatty uses is simple:
+It treats classes as dicts and their attributes as key-value pairs in the dict. 
+Lists are stored as lists. That's it.
+ 
 
 	
 Getting started with Flatty
@@ -104,8 +132,8 @@ Getting started with Flatty
 	The restored_obj is a new object filled with the data of flatted
 	
 	
-Bug Tracker:
-------------
+Bug Tracker
+-----------
 
 If you find any issues please report them on https://github.com/ceelian/Flatty/issues
 
