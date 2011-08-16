@@ -25,6 +25,7 @@ class Document(flatty.Schema):
 			returns *id* as *ObjectId*. *id*  is the document id which stays the
 			same over time.
 		"""
+		error = None
 		flattened =  self.flatit()
 		if self._id == ObjectId:
 			del flattened['_id']
@@ -33,11 +34,15 @@ class Document(flatty.Schema):
 			self.__collection__ = self.__class__.__name__.lower()
 			
 		if self.__old_doc__ == None:
-			db[self.__collection__].save(flattened, safe=True, manipulate=True)
-			self._id = flattened['_id']
+			id = db[self.__collection__].save(flattened, safe=True, manipulate=True)
+			self._id = id
 		else: 
-			db[self.__collection__].update(self.__old_doc__, flattened, safe=True)
+			error = db[self.__collection__].update(self.__old_doc__, flattened, safe=True)
+			
 		
+		if error != None and 'updatedExisting' in error \
+			and error['updatedExisting'] == False:
+			raise UpdateFailedError('Document in db is newer than the document for storing')
 		return self._id
 
 	
@@ -63,4 +68,6 @@ class Document(flatty.Schema):
 		
 		return obj
 		
+class UpdateFailedError(Exception):
+	pass
 	

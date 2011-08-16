@@ -90,6 +90,36 @@ class MongodbTestCase(unittest.TestCase):
 		
 
 		
+	def test_conflicting_documents(self):
+		from datetime import datetime
+		db = self.db
+		t_now = datetime.now()
+		
+		class Person(flatty.mongo.Document):
+			name = unicode
+			age = int
+			added = datetime
+			
+			def __init__(self, **kwargs):
+				super(Person,self).__init__(**kwargs)
+				self.added = t_now #datetime.now()
+			
+		person = Person(name=u'John Doe', age=42)
+		self.assertEqual(person.name, u'John Doe')
+		self.assertEqual(person.age, 42)
+		self.assertEqual(person.added, t_now)
+		
+		person.store(db)
+		person2 = Person.load(db, person._id)
+		person_conflicting = Person.load(db, person._id)
+		
+		person2.name = u'John R. Doe'
+		person2.store(db)
+		person_conflicting.age = 86
+		
+		self.assertRaises(flatty.mongo.UpdateFailedError, person_conflicting.store, db)
+		
+		
 		
 def suite():
 	suite = unittest.TestSuite()
