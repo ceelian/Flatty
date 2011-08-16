@@ -9,14 +9,22 @@ from bson.objectid import ObjectId
 
 class Document(flatty.Schema):
 	"""
-	This class is the base Class for alls mongodb documents
+	This class is the base Class for all mongodb documents
+	
+	**IMPORTANT**:
+		Due to the fact that mongodb always return strings as unicode we need
+		to define string attributes of type basestring (which is the parent 
+		class of str and unicode class). Otherwise flatty will
+		raise a TypeError (<type 'str'> != <type 'unicode'>) 
 	"""
 	__collection__ = None
 	__old_doc__ = None
 	_id = ObjectId
 	
 	def store(self, db):
-		"""stores the document in the mongodb 
+		"""stores the document in the mongodb.
+		Only saves the document if it wasn't changed in the meantime otherwise
+		*UpdateFailedError* Exception is raised
 	
 		Args:
 			db: should must be a pymongo ''Database'' object

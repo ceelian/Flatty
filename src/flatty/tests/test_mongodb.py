@@ -20,7 +20,7 @@ class MongodbTestCase(unittest.TestCase):
 		t_now = datetime.now()
 		
 		class Person(flatty.mongo.Document):
-			name = unicode
+			name = basestring
 			age = int
 			added = datetime
 			
@@ -28,8 +28,8 @@ class MongodbTestCase(unittest.TestCase):
 				super(Person,self).__init__(**kwargs)
 				self.added = t_now #datetime.now()
 			
-		person = Person(name=u'John Doe', age=42)
-		self.assertEqual(person.name, u'John Doe')
+		person = Person(name='John Doe', age=42)
+		self.assertEqual(person.name, 'John Doe')
 		self.assertEqual(person.age, 42)
 		self.assertEqual(person.added, t_now)
 		
@@ -38,7 +38,7 @@ class MongodbTestCase(unittest.TestCase):
 		self.assertEqual(person.name, person2.name)
 		self.assertEqual(person.added, person2.added)
 	
-		person2.name = u'John R. Doe'
+		person2.name = 'John R. Doe'
 		person2.store(db)
 		person3 = Person.load(db, person._id)
 		self.assertTrue(person.name != person3.name)
@@ -50,42 +50,42 @@ class MongodbTestCase(unittest.TestCase):
 		db = self.db
 		
 		class Comment(flatty.Schema):
-			user = unicode
-			txt = unicode
+			user = basestring
+			txt = basestring
 		
 		class Book(flatty.Schema):
-			name = unicode
+			name = basestring
 			year = date
 			comments = flatty.TypedList.set_type(Comment)
 		
 		class Address(flatty.Schema):
-			street = unicode
-			city = unicode
+			street = basestring
+			city = basestring
 			
 		class Library(flatty.mongo.Document):
-			name = unicode
+			name = basestring
 			address = Address 
 			books = flatty.TypedDict.set_type(Book)
 		
 		
-		library = Library(name=u'IT Library')
-		library.address = Address(street=u'Baker Street 221b', city=u'London')
-		book1 = Book(name=u'Dive Into Python',
+		library = Library(name='IT Library')
+		library.address = Address(street='Baker Street 221b', city='London')
+		book1 = Book(name='Dive Into Python',
 						year = date(2008,10,10))
-		book2 = Book(name=u'Programming Python',
+		book2 = Book(name='Programming Python',
 						year = date(2011,1,31))
 		book2.comments = []
-		book2.comments.append(Comment(user=u'Alex', txt=u'good Book'))
+		book2.comments.append(Comment(user='Alex', txt='good Book'))
 		
 		library.books={}
-		library.books[u'978-1590593561'] = book1
-		library.books[u'978-0596158101'] = book2
+		library.books['978-1590593561'] = book1
+		library.books['978-0596158101'] = book2
 		
 		id = library.store(db)
 		library2 =  Library.load(db, id)
 		
-		self.assertEqual(library2.books[u'978-1590593561'].comments, None)
-		self.assertEqual(len(library2.books[u'978-0596158101'].comments), 1)
+		self.assertEqual(library2.books['978-1590593561'].comments, None)
+		self.assertEqual(len(library2.books['978-0596158101'].comments), 1)
 		self.assertTrue(isinstance(library2.address, Address))
 		
 
@@ -96,7 +96,7 @@ class MongodbTestCase(unittest.TestCase):
 		t_now = datetime.now()
 		
 		class Person(flatty.mongo.Document):
-			name = unicode
+			name = basestring
 			age = int
 			added = datetime
 			
@@ -104,8 +104,8 @@ class MongodbTestCase(unittest.TestCase):
 				super(Person,self).__init__(**kwargs)
 				self.added = t_now #datetime.now()
 			
-		person = Person(name=u'John Doe', age=42)
-		self.assertEqual(person.name, u'John Doe')
+		person = Person(name='John Doe', age=42)
+		self.assertEqual(person.name, 'John Doe')
 		self.assertEqual(person.age, 42)
 		self.assertEqual(person.added, t_now)
 		
@@ -113,7 +113,7 @@ class MongodbTestCase(unittest.TestCase):
 		person2 = Person.load(db, person._id)
 		person_conflicting = Person.load(db, person._id)
 		
-		person2.name = u'John R. Doe'
+		person2.name = 'John R. Doe'
 		person2.store(db)
 		person_conflicting.age = 86
 		

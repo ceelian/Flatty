@@ -35,7 +35,7 @@ setup(
     author_email = flatty.__contact__,
     description = flatty.__doc__,
     long_description=long_description,
-    keywords = "marshaller schema objectmapper couchdb",
+    keywords = "marshaller schema objectmapper couchdb mongodb orm",
     platforms=["any"],
     url = flatty.__homepage__,
     license = 'BSD',
