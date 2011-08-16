@@ -48,7 +48,6 @@ class Document(flatty.Schema):
 		else: 
 			error = db[self.__collection__].update(self.__old_doc__, flattened, safe=True)
 			
-		
 		if error != None and 'updatedExisting' in error \
 			and error['updatedExisting'] == False:
 			raise UpdateFailedError('Document in db is newer than the document for storing')

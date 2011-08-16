@@ -58,7 +58,6 @@ class ActionsTestCase(unittest.TestCase):
 		  
 		marsh = flatty.flatit(t1)
 		n1 = flatty.unflatit(Foo, marsh)
-		
 		self.assertTrue(is_plain_dict(marsh))
 		self.assertEqual(t1.a, n1.a)
 		self.assertEqual(len(t1.b), len(n1.b))
@@ -73,6 +72,28 @@ class ActionsTestCase(unittest.TestCase):
 		#reflattening and compare if results doesn't change
 		marsh2 = flatty.flatit(n1)
 		self.assertEqual(marsh, marsh2)
+		
+	def test_types_in_typed_list(self):
+		class Name(flatty.Schema):
+			first_name = None
+			last_name = None
+					
+		class Foo(flatty.Schema):
+			a = None
+			b = flatty.TypedList.set_type(Name)
+			
+		t1 = Foo()
+		t1.a ="hallo"
+		
+		l1 = Name()
+		l1.first_name = "hans"
+		l1.last_name = "conrad"
+		
+		t1.b = [] #Foo.b()
+		t1.b.append(l1)
+		t1.b.append('foobar')
+		  
+		self.assertRaises(TypeError, flatty.flatit, t1)
 		
 	def test_cascading(self):
 		class Bar(flatty.Schema):
@@ -165,6 +186,29 @@ class ActionsTestCase(unittest.TestCase):
 		flat_dict2 = flatty.flatit(n1)
 		self.assertEqual(flat_dict, flat_dict2)
 		
+	def test_types_in_typed_dict(self):
+		class Name(flatty.Schema):
+			first_name = None
+			last_name = None
+					
+		class Foo(flatty.Schema):
+			a = None
+			b = flatty.TypedDict.set_type(Name)
+		
+		t1 = Foo()
+		t1.a ="hallo"
+		
+		l1 = Name()
+		l1.first_name = "hans"
+		l1.last_name = "conrad"
+		
+		t1.b = {}
+		t1.b['first'] =l1
+		t1.b['second'] ="foobar"
+		  
+		self.assertRaises(TypeError,flatty.flatit,t1)
+		
+		
 	def test_deep_nested_classes(self):
 		class Region(flatty.Schema):
 			name = str
@@ -206,17 +250,22 @@ class ActionsTestCase(unittest.TestCase):
 		self.assertEqual(world2.countries['hungary'].num_rivers, 10)
 		
 		flat_dict = flatty.flatit(world)
+		self.assertTrue(is_plain_dict(flat_dict))
 		restored_world = flatty.unflatit(World, flat_dict)
 		self.assertEqual(restored_world.countries['austria'].pop, 7)
 		self.assertEqual(restored_world.countries['austria'].num_rivers, 231)
 		flat_dict2 = flatty.flatit(restored_world)
 		self.assertEqual(flat_dict, flat_dict2)
+		self.assertTrue(is_plain_dict(flat_dict2))
+		
 		
 		flat_dict = flatty.flatit(world2)
+		self.assertTrue(is_plain_dict(flat_dict))
 		restored_world = flatty.unflatit(World, flat_dict)
 		self.assertEqual(restored_world.countries['hungary'].pop, 20)
 		self.assertEqual(restored_world.countries['hungary'].num_rivers, 10)
 		flat_dict2 = flatty.flatit(restored_world)
+		self.assertTrue(is_plain_dict(flat_dict2))
 		self.assertEqual(flat_dict, flat_dict2)
 		
 	def test_type_safe_flatit(self):
@@ -235,7 +284,7 @@ class ActionsTestCase(unittest.TestCase):
 			desc = str
 			pop = int(7)
 			num_rivers = 231
-			
+		
 		flat_dict={'desc':42}
 		self.assertRaises(TypeError, flatty.unflatit, Country, flat_dict)
 		
@@ -251,10 +300,10 @@ class ActionsTestCase(unittest.TestCase):
 		class RgbConverter(flatty.Converter):
 			import datetime
 			@classmethod
-			def to_flat(cls, obj):
+			def to_flat(cls, obj_type, obj):
 				return str("%d,%d,%d"%(obj.r,obj.g, obj.b))
 			@classmethod
-			def to_obj(cls, val):
+			def to_obj(cls, val_type, val):
 				rgb_arr = str(val).split(',')
 				obj = Rgb(int(rgb_arr[0]),int(rgb_arr[1]),int(rgb_arr[2]))
 				return obj
@@ -277,24 +326,29 @@ class ActionsTestCase(unittest.TestCase):
 	def test_datetime_conversion(self):
 		import datetime
 		now = datetime.datetime.now()
-		now_flat = flatty.DateTimeConverter.to_flat(now)
-		restored_now = flatty.DateTimeConverter.to_obj(now_flat)
+		now_flat = flatty.DateTimeConverter.to_flat(datetime.datetime, now)
+		restored_now = flatty.DateTimeConverter.to_obj(datetime.datetime, now_flat)
 		self.assertEqual(now, restored_now)
 		
 	
 	def test_date_conversion(self):
 		import datetime
 		now = datetime.datetime.now().date()
-		now_flat = flatty.DateConverter.to_flat(now)
-		restored_now = flatty.DateConverter.to_obj(now_flat)
+		now_flat = flatty.DateConverter.to_flat(datetime.datetime.date, now)
+		restored_now = flatty.DateConverter.to_obj(datetime.datetime.date, now_flat)
 		self.assertEqual(now, restored_now)
 		
 	def test_time_conversion(self):
 		import datetime
 		now = datetime.datetime.now().time()
-		now_flat = flatty.TimeConverter.to_flat(now)
-		restored_now = flatty.TimeConverter.to_obj(now_flat)
+		now_flat = flatty.TimeConverter.to_flat(datetime.datetime.time, now)
+		restored_now = flatty.TimeConverter.to_obj(datetime.datetime.time, now_flat)
 		self.assertEqual(now, restored_now)
+		
+	def test_flatit_primitve(self):
+		s = 'Hello World'
+		s_flat = flatty.flatit(s)
+		self.assertEqual(s, s_flat)
 	
 			
 			
