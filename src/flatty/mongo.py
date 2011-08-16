@@ -5,7 +5,7 @@ Classes
 =======
 """
 import flatty
-from bson.objectid import ObjectId
+from pymongo.objectid import ObjectId
 
 class Document(flatty.Schema):
 	"""
@@ -30,10 +30,11 @@ class Document(flatty.Schema):
 			db: should must be a pymongo ''Database'' object
 			
 		Returns:
-			returns *id* as *ObjectId*. *id*  is the document id which stays the
+			returns *id*.  *id*  is the document id which stays the
 			same over time.
 		"""
 		error = None
+		
 		flattened =  self.flatit()
 		if self._id == ObjectId:
 			del flattened['_id']
@@ -68,7 +69,7 @@ class Document(flatty.Schema):
 		"""
 		if cls.__collection__ == None:
 			cls.__collection__ = cls.__name__.lower()
-		doc = db[cls.__collection__].find_one({'_id':ObjectId(id)})
+		doc = db[cls.__collection__].find_one({'_id':id})
 		
 		obj = cls.unflatit(doc)
 		obj.__old_doc__ =  doc
