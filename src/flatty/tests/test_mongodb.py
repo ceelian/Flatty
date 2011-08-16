@@ -1,21 +1,16 @@
 
 import flatty
-import couchdb
+from pymongo import Connection
 import unittest
 import sys
 
-class CouchdbTestCase(unittest.TestCase):
+class MongodbTestCase(unittest.TestCase):
 	
 	def setUp(self):
-		dbname = 'flatty_couchdb_test'
-		self.couch = couchdb.Server()
-		if dbname in self.couch:
-			del self.couch[dbname]
-			self.couch.create(dbname)
-		else:
-			self.couch.create(dbname)
-		
-		self.db = self.couch[dbname]
+		dbname = 'flatty_mongo_test'
+		connection = Connection('localhost', 27017)
+		connection.drop_database(dbname)
+		self.db = connection[dbname]
 	def tearDown(self):
 		pass
 	
@@ -24,8 +19,8 @@ class CouchdbTestCase(unittest.TestCase):
 		db = self.db
 		t_now = datetime.now()
 		
-		class Person(flatty.couch.Document):
-			name = str
+		class Person(flatty.mongo.Document):
+			name = unicode
 			age = int
 			added = datetime
 			
@@ -33,23 +28,21 @@ class CouchdbTestCase(unittest.TestCase):
 				super(Person,self).__init__(**kwargs)
 				self.added = t_now #datetime.now()
 			
-		person = Person(name='John Doe', age=42)
-		self.assertEqual(person.name, 'John Doe')
+		person = Person(name=u'John Doe', age=42)
+		self.assertEqual(person.name, u'John Doe')
 		self.assertEqual(person.age, 42)
 		self.assertEqual(person.added, t_now)
 		
 		person.store(db)
-		old_rev = person._rev
 		person2 = Person.load(db, person._id)
 		self.assertEqual(person.name, person2.name)
 		self.assertEqual(person.added, person2.added)
 	
-		person2.name = 'John R. Doe'
+		person2.name = u'John R. Doe'
 		person2.store(db)
 		person3 = Person.load(db, person._id)
 		self.assertTrue(person.name != person3.name)
 		self.assertEqual(person.added, person3.added)
-		self.assertTrue(person3._rev != old_rev)
 		self.assertEqual(person._id, person3._id)
 		
 	def test_complex_document(self):
@@ -57,42 +50,42 @@ class CouchdbTestCase(unittest.TestCase):
 		db = self.db
 		
 		class Comment(flatty.Schema):
-			user = str
-			txt = str
+			user = unicode
+			txt = unicode
 		
 		class Book(flatty.Schema):
-			name = str
+			name = unicode
 			year = date
 			comments = flatty.TypedList.set_type(Comment)
 		
 		class Address(flatty.Schema):
-			street = str
-			city = str
+			street = unicode
+			city = unicode
 			
-		class Library(flatty.couch.Document):
-			name = str
+		class Library(flatty.mongo.Document):
+			name = unicode
 			address = Address 
 			books = flatty.TypedDict.set_type(Book)
 		
 		
-		library = Library(name='IT Library')
-		library.address = Address(street='Baker Street 221b', city='London')
-		book1 = Book(name='Dive Into Python',
+		library = Library(name=u'IT Library')
+		library.address = Address(street=u'Baker Street 221b', city=u'London')
+		book1 = Book(name=u'Dive Into Python',
 						year = date(2008,10,10))
-		book2 = Book(name='Programming Python',
+		book2 = Book(name=u'Programming Python',
 						year = date(2011,1,31))
 		book2.comments = []
-		book2.comments.append(Comment(user='Alex', txt='good Book'))
+		book2.comments.append(Comment(user=u'Alex', txt=u'good Book'))
 		
 		library.books={}
-		library.books['978-1590593561'] = book1
-		library.books['978-0596158101'] = book2
+		library.books[u'978-1590593561'] = book1
+		library.books[u'978-0596158101'] = book2
 		
-		id, rev = library.store(db)
+		id = library.store(db)
 		library2 =  Library.load(db, id)
 		
-		self.assertEqual(library2.books['978-1590593561'].comments, None)
-		self.assertEqual(len(library2.books['978-0596158101'].comments), 1)
+		self.assertEqual(library2.books[u'978-1590593561'].comments, None)
+		self.assertEqual(len(library2.books[u'978-0596158101'].comments), 1)
 		self.assertTrue(isinstance(library2.address, Address))
 		
 
@@ -101,9 +94,9 @@ class CouchdbTestCase(unittest.TestCase):
 def suite():
 	suite = unittest.TestSuite()
 	if len(sys.argv) > 1 and sys.argv[1][:2] == 't:':
-		suite.addTest(CouchdbTestCase(sys.argv[1][2:]))
+		suite.addTest(MongodbTestCase(sys.argv[1][2:]))
 	else:
-		suite.addTest(unittest.makeSuite(CouchdbTestCase, 'test'))
+		suite.addTest(unittest.makeSuite(MongodbTestCase, 'test'))
 	return suite
 
 
