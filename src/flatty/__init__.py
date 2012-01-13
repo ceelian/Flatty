@@ -8,5 +8,11 @@ __docformat__ = "restructuredtext"
 
 
 from flatty import *
-import couch
-import mongo
+try:
+    import couch
+except ImportError:
+    pass
+try:
+    import mongo
+except ImportError:
+    pass
