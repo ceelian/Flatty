@@ -8,7 +8,8 @@ allowed_types = (types.NoneType,
  types.StringType,
  types.UnicodeType,
  types.ListType,
- types.DictType)
+ types.DictType,
+ types.NoneType)
 
 def is_plain_dict(obj):
 	if isinstance(obj, allowed_types):

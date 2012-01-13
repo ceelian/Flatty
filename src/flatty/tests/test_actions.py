@@ -52,7 +52,7 @@ class ActionsTestCase(unittest.TestCase):
 		l2.first_name = "karl"
 		l2.last_name = "hirsch"
 		
-		t1.b = [] #Foo.b()
+		t1.b = []
 		t1.b.append(l1)
 		t1.b.append(l2)
 		  
@@ -62,7 +62,7 @@ class ActionsTestCase(unittest.TestCase):
 		self.assertEqual(t1.a, n1.a)
 		self.assertEqual(len(t1.b), len(n1.b))
 		self.assertTrue(isinstance(n1.b, list))
-		self.assertTrue(isinstance(n1.b, flatty.TypedList))
+		self.assertTrue(isinstance(n1.b,flatty.TypedList))
 		
 		for i in range(len(t1.b)):
 			self.assertTrue(isinstance(n1.b[i], Name))
@@ -72,6 +72,26 @@ class ActionsTestCase(unittest.TestCase):
 		#reflattening and compare if results doesn't change
 		marsh2 = flatty.flatit(n1)
 		self.assertEqual(marsh, marsh2)
+	
+	def test_typed_list_constructor(self):
+		""" Test for Bug #2
+		"""
+
+		class X(flatty.Schema):
+			x = int
+		
+		class Y(flatty.Schema):
+			y = int
+		
+		class Top(flatty.Schema):
+			t1 = flatty.TypedList.set_type(X)
+			t2 = flatty.TypedList.set_type(Y)
+		
+		a = X(x=1)
+		b = Y(y=2)
+		t = Top(t1=[a], t2=[b])
+		
+		t.flatit()
 		
 	def test_types_in_typed_list(self):
 		class Name(flatty.Schema):
@@ -175,6 +195,7 @@ class ActionsTestCase(unittest.TestCase):
 		self.assertEqual(t1.a, n1.a)
 		self.assertEqual(len(t1.b), len(n1.b))
 		self.assertTrue(isinstance(n1.b, dict))
+		self.assertTrue(str(type(n1.b)) == str(flatty.TypedDict))
 		self.assertTrue(isinstance(n1.b, flatty.TypedDict))
 		
 		for k,v in t1.b.items():
