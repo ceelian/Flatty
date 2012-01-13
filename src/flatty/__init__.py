@@ -1,5 +1,5 @@
 """flatty - marshaller/unmarshaller for light-schema python objects"""
-VERSION = (0, 1, 1)
+VERSION = (0, 1, 2)
 __version__ = ".".join(map(str, VERSION))
 __author__ = "Christian Haintz"
 __contact__ = "christian.haintz@orangelabs.at"

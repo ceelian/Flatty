@@ -2,6 +2,12 @@
  Change history
 ================
 
+0.1.2 [2012-01-13 19:11 CET]
+------------------------------------------------------------------
+	
+	* Friday the 13th bugfixing session ;)
+	* Fixed the major Bug #2 by introducing the MetaBaseFlattyType
+
 0.1.1 [2011-07-15 21:13 CET]
 ------------------------------------------------------------------
 	
