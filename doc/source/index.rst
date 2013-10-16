@@ -9,12 +9,13 @@ Welcome to flatty's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+    :maxdepth: 3
    
-   introduction
-   flatty
-   couchdb
-   develop
+    introduction
+    flatty
+    couchdb
+    mongodb
+    develop
 
 
 Indices and tables

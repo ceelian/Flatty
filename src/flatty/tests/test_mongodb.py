@@ -1,6 +1,6 @@
 
 import flatty
-from pymongo import Connection
+import pymongo
 import unittest
 import sys
 
@@ -8,9 +8,10 @@ class MongodbTestCase(unittest.TestCase):
 	
 	def setUp(self):
 		dbname = 'flatty_mongo_test'
-		connection = Connection('localhost', 27017)
-		connection.drop_database(dbname)
-		self.db = connection[dbname]
+		client = pymongo.MongoClient('localhost', 27017)
+		client.drop_database(dbname)
+		self.db = client[dbname]
+		
 	def tearDown(self):
 		pass
 	
@@ -45,6 +46,7 @@ class MongodbTestCase(unittest.TestCase):
 		self.assertEqual(person.added, person3.added)
 		self.assertEqual(person._id, person3._id)
 		
+				
 	def test_complex_document(self):
 		from datetime import date
 		db = self.db

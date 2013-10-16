@@ -5,7 +5,7 @@ Classes
 =======
 """
 import flatty
-from pymongo.objectid import ObjectId
+from bson.objectid import ObjectId
 
 class Document(flatty.Schema):
 	"""

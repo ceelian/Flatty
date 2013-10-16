@@ -11,8 +11,8 @@ class Document(flatty.Schema):
 	This class is the base Class for alls couchdb documents
 	"""
 	
-	_id = str
-	_rev = str
+	_id = unicode
+	_rev = unicode
 	
 	def store(self, db):
 		"""stores the document in the couchdb 
@@ -25,9 +25,9 @@ class Document(flatty.Schema):
 			same over time. `rev` changes on every store.
 		"""
 		flattened =  self.flatit()
-		if self._id == str:
+		if self._id == unicode:
 			del flattened['_id']
-		if self._rev == str:
+		if self._rev == unicode:
 			del flattened['_rev']
 		self._id, self._rev = db.save(flattened)
 		return self._id, self._rev

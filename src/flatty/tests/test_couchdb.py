@@ -25,7 +25,7 @@ class CouchdbTestCase(unittest.TestCase):
 		t_now = datetime.now()
 		
 		class Person(flatty.couch.Document):
-			name = str
+			name = basestring
 			age = int
 			added = datetime
 			
@@ -57,20 +57,20 @@ class CouchdbTestCase(unittest.TestCase):
 		db = self.db
 		
 		class Comment(flatty.Schema):
-			user = str
-			txt = str
+			user = basestring
+			txt = basestring
 		
 		class Book(flatty.Schema):
-			name = str
+			name = basestring
 			year = date
 			comments = flatty.TypedList.set_type(Comment)
 		
 		class Address(flatty.Schema):
-			street = str
-			city = str
+			street = basestring
+			city = basestring
 			
 		class Library(flatty.couch.Document):
-			name = str
+			name = basestring
 			address = Address 
 			books = flatty.TypedDict.set_type(Book)
 		

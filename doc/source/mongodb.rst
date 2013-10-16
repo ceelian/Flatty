@@ -1,9 +1,9 @@
 **********************************
-flatty.couch - the couchdb adapter
+flatty.mongo - the mongodb adapter
 **********************************
 
-This module helps you to build schemas for couchdb (it uses the couchdb-python
-module for storing the flattened dicts as couchdb documents)
+This module helps you to build schemas for mongodb (it uses the pymongo
+module for storing the flattened dicts as mongodb documents)
 
 This module has less than 20 lines of python code. If you want to support another
 marshaller, look at this modules source code, this should give you a good start.
@@ -15,29 +15,24 @@ Simple Example
 
 	
 	>>> import flatty
-	>>> import couchdb
+	>>> import pymongo
 	>>> from datetime import datetime
 	
-	We use the db 'flatty_couchdb_test' and create it if it doesn't exist
+	We use the db 'flatty_mongodb_test' and create it if it doesn't exist
 	
-	>>> dbname = 'flatty_couchdb_test'
-	>>> server = couchdb.Server('http://localhost:5984/')
+	>>> dbname = 'flatty_mongodb_test'
+	>>> client = pymongo.MongoClient('localhost', 27017)
 	>>> 
-	>>> if dbname not in server:
-	...     db = server.create(dbname)
-	... else:
-	...     db = server[dbname]
+	>>> db = client[dbname]
 	>>> 
 	
-	Here comes the actual flatty code. This example is intentionally similar to
-	the example for the couchdb-python mapper (http://packages.python.org/CouchDB/mapping.html)
-	because we want to show the differences.
+	Here comes the actual flatty code.
 	
-	To define a flatable class in a couchdb you must inherit from the 
-	:class:`flatty.couch.Document`. You can simply add fields and define their
+	To define a flatable class in a mongodb you must inherit from the 
+	:class:`flatty.mongo.Document`. You can simply add fields and define their
 	types.
 	
-	>>> class Person(flatty.couch.Document):
+	>>> class Person(flatty.mongo.Document):
 	...     name = basestring
 	...     age = int
 	...     added = datetime
@@ -48,12 +43,13 @@ Simple Example
 	... 
 	>>> 
 	>>> person = Person(name='John Doe', age=42)
-	>>> person.store(db)   # doctest: +ELLIPSIS
-	(u'...', u'...')  
-	>>> old_rev = person._rev
-	>>> person = Person.load(db, person._id)
-	>>> person.name
+	>>> person.store(db) # doctest: +ELLIPSIS
+	ObjectId('...')
+	>>> person2 = Person.load(db, person._id)
+	>>> person2.name
 	u'John Doe'
+	>>> person2.name == person.name
+	True
 	>>> person.added # doctest: +ELLIPSIS
 	datetime.datetime(...)
 	
@@ -61,7 +57,7 @@ Simple Example
 	
 	>>> person.name = 'John R. Doe'
 	>>> person.store(db) # doctest: +ELLIPSIS
-	(u'...', u'...')
+	ObjectId('...')
 	
 	After retrieving the document from the db once again we will also get the
 	updated values.
@@ -69,9 +65,7 @@ Simple Example
 	>>> person = Person.load(db, person._id)
 	>>> person.name
 	u'John R. Doe'
-	>>> person._rev != old_rev
-	True
-	>>> 
+	 
 
 
 ======================
@@ -80,17 +74,15 @@ A more complex example
 
 	>>> from datetime import date
 	>>> import flatty
-	>>> import couchdb
+	>>> import pymongo
 	
-	We use the db 'flatty_couchdb_test' and create it if it doesn't exist
+	We use the db 'flatty_mongodb_test' and create it if it doesn't exist
 	
-	>>> dbname = 'flatty_couchdb_test'
-	>>> server = couchdb.Server('http://localhost:5984/')
-	>>>  
-	... if dbname not in server:
-	...     db = server.create(dbname)
-	... else:
-	...     db = server[dbname]
+	>>> dbname = 'flatty_mongodb_test'
+	>>> client = pymongo.MongoClient('localhost', 27017)
+	>>> 
+	>>> db = client[dbname]
+	>>> 
 	
 	We define the schema
 	
@@ -107,15 +99,15 @@ A more complex example
 	...     street = basestring
 	...     city = basestring
 	... 
-	>>> class Library(flatty.couch.Document):
+	>>> class Library(flatty.mongo.Document):
 	...     name = basestring
 	...     address = Address 
 	...     books = flatty.TypedDict.set_type(Book)
 	
 	The **important things** we want to show in this schema definition are:
 	
-		- only the class wich acts as couchdb document need to be subclassed
-			from `flatty.couch.Document all others are subclassed from `flatty.Schema`
+		- only the class wich acts as mongodb document need to be subclassed
+			from `flatty.mongo.Document all others are subclassed from `flatty.Schema`
 		
 		- Schema classes can be cascaded easily either direct (like Address) or
 			with `flatty.TypedDict` and `flatty.TypedList`. 
@@ -133,7 +125,7 @@ A more complex example
 	>>> library.books={}
 	>>> library.books['978-1590593561'] = book1
 	>>> library.books['978-0596158101'] = book2
-	>>> id, rev = library.store(db)
+	>>> id = library.store(db)
 	
 	When we load the the library object from the db again, the whole class 
 	structure is restored.
@@ -147,9 +139,9 @@ A more complex example
 
 
 
-.. currentmodule:: flatty.couch
+.. currentmodule:: flatty.mongo
 
-.. automodule:: flatty.couch
+.. automodule:: flatty.mongo
     :members:
 
 
